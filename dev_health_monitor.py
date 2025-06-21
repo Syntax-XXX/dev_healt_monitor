@@ -76,8 +76,25 @@ def get_summary_text(sessions):
     return "\n".join(lines)
 
 def show_native_notification(title, message):
+    # Try plyer notification first
     if notification is not None:
-        notification.notify(title=title, message=message, timeout=8)
+        try:
+            notification.notify(title=title, message=message, timeout=8)
+            return
+        except Exception as e:
+            print(f"plyer notification failed: {e}")
+    # Fallback to tkinter popup if available
+    if tk is not None:
+        try:
+            root = tk.Tk()
+            root.withdraw()
+            messagebox.showinfo(title, message)
+            root.destroy()
+            return
+        except Exception as e:
+            print(f"tkinter popup failed: {e}")
+    # Final fallback: print to console
+    print(f"[NOTIFICATION] {title}: {message}")
 
 def print_summary(sessions):
     summary = get_summary_text(sessions)
